@@ -76,8 +76,32 @@ launchd.agents.gpg-agent-start = {
 
 ### Scheduled daily backup (`backup-darwin.nix`)
 
-Runs a restic backup every day at 14:00 using `StartCalendarInterval`:
+Backs up your home directory to a restic repository daily at 14:00 via a
+launchd calendar trigger. The module is designed to be pluggable:
 
+- **`services.backup-home.repo`** -- restic repository URL. Defaults to
+  `rclone:gdrive:backups/<hostname>` (Google Drive via rclone, per-hostname
+  path to prevent cross-machine stomping). Set this to any restic-supported
+  backend: local path, S3, SFTP, etc.
+- **`services.backup-home.passwordCommand`** -- command that prints the restic
+  password to stdout. Defaults to macOS Keychain
+  (`security find-generic-password -a restic -s backup -w`). Swap in your
+  preferred secret manager:
+  - `"pass show restic/backup"` (pass/password-store)
+  - `"op read op://Vault/restic-backup/password"` (1Password CLI)
+  - `"gpg --quiet --decrypt /path/to/password.gpg"` (GPG-encrypted file)
+
+The backup script auto-initializes the repo on first run, skips if a lock
+is held, and applies retention (7 daily, 4 weekly, 12 monthly, 3 yearly).
+Logs go to `~/.local/log/backup-home-*.log`.
+
+Override in your host config:
+```nix
+services.backup-home.repo = "s3:s3.amazonaws.com/my-backups";
+services.backup-home.passwordCommand = "pass show restic/backup";
+```
+
+The launchd agent that drives it:
 ```nix
 launchd.agents.backup-home = {
   enable = true;
