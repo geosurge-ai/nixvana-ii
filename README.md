@@ -93,6 +93,9 @@ launchd calendar trigger. The module is designed to be pluggable:
 
 The backup script auto-initializes the repo on first run, skips if a lock
 is held, and applies retention (7 daily, 4 weekly, 12 monthly, 3 yearly).
+Restic deduplicates at the block level, so incremental snapshots only store
+changed chunks and cost almost nothing -- retention pruning exists mainly to
+reclaim space from files you've since deleted.
 Logs go to `~/.local/log/backup-home-*.log`.
 
 Override in your host config:
