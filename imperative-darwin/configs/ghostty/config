@@ -1,4 +1,6 @@
 auto-update = off
+command = /bin/zsh --login
+quit-after-last-window-closed = true
 
 font-family = PragmataPro Liga
 font-size = 16
