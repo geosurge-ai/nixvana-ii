@@ -10,6 +10,11 @@ defaults write NSGlobalDomain InitialKeyRepeat -int 15
 # Disable press-and-hold for accent characters (enables key repeat everywhere)
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
+# F-keys act as F-keys (F1, F2, …) instead of hardware controls (brightness, volume, etc.)
+# Hold Fn to access the hardware controls instead.
+# Equivalent to: System Settings > Keyboard > "Use F1, F2, etc. keys as standard function keys"
+defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true
+
 # Auto-hide dock
 defaults write com.apple.dock autohide -bool true
 killall Dock

@@ -7,26 +7,43 @@ config files via GUIs, or need homebrew cask installation.
 ## Setup on a fresh Mac
 
 ```bash
-# 1. Install homebrew
+# 1. Install Nix via Determinate Systems installer
+#    (provides flakes, nix-command, and a graphical uninstaller out of the box)
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+
+# 2. Install homebrew (for GUI apps that need cask installation)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# 2. Install all apps
+# 3. Install all GUI apps
 brew bundle --file=imperative-darwin/Brewfile
 
-# 3. Unblock Gatekeeper quarantine on all apps
+# 4. Unblock Gatekeeper quarantine on all apps
 sudo xattr -dr com.apple.quarantine /Applications/*.app 2>/dev/null
 
-# 4. Set macOS system defaults (keyboard repeat, dock, etc.)
+# 5. Set macOS system defaults (keyboard repeat, F-keys, dock, etc.)
 imperative-darwin/bin/macos-defaults
 # Log out and back in for keyboard repeat to take effect
 
-# 5. Deploy configs (see per-app sections below)
+# 6. Deploy configs (see per-app sections below)
 
-# 6. Grant accessibility permissions (System Settings > Privacy & Security > Accessibility):
+# 7. Grant accessibility permissions (System Settings > Privacy & Security > Accessibility):
 #    - Karabiner-Elements (karabiner_grabber + karabiner_observer)
 #    - AeroSpace
 #    - LinearMouse
 ```
+
+---
+
+## bin/macos-defaults
+
+System-level defaults that can't be managed by home-manager or nix-darwin.
+Run once on a fresh Mac, then log out and back in.
+
+What it sets:
+- **Fast keyboard repeat**: KeyRepeat=2 (30ms), InitialKeyRepeat=15 (225ms)
+- **Disable press-and-hold**: enables key repeat everywhere (no accent popup)
+- **F-keys as F-keys**: F1-F12 send actual function key codes; hold Fn for hardware controls (brightness, volume, etc.)
+- **Auto-hide dock**
 
 ---
 
@@ -108,61 +125,3 @@ cp configs/ghostty/config ~/Library/Application\ Support/com.mitchellh.ghostty/c
 Settings:
 - Font: PragmataPro Liga, size 16
 - `auto-update = off`
-
----
-
-## Using home-manager launchd agents
-
-This repo demonstrates how to run macOS launchd services via home-manager.
-See the nix modules in `home-manager/include/services/` for working examples:
-
-### GPG agent (`gpg-darwin.nix`)
-Starts `gpg-agent` at login using `RunAtLoad = true`:
-```nix
-launchd.agents.gpg-agent-start = {
-  enable = true;
-  config = {
-    ProgramArguments = [ "''${gpg}/bin/gpgconf" "--launch" "gpg-agent" ];
-    EnvironmentVariables.GNUPGHOME = "''${config.home.homeDirectory}/.gnupg";
-    RunAtLoad = true;
-  };
-};
-```
-
-### Scheduled backup (`backup-darwin.nix`)
-Runs a restic backup daily at 14:00 using `StartCalendarInterval`:
-```nix
-launchd.agents.backup-home = {
-  enable = true;
-  config = {
-    ProgramArguments = [ "''${backupHome}/bin/backup-home" ];
-    StartCalendarInterval = [{ Hour = 14; Minute = 0; }];
-    EnvironmentVariables.HOME = homeDir;
-    StandardOutPath = "''${homeDir}/.local/log/backup-home-launchd.stdout.log";
-    StandardErrorPath = "''${homeDir}/.local/log/backup-home-launchd.stderr.log";
-  };
-};
-```
-
-### Key launchd config options
-
-| Key | Description | Example |
-|-----|-------------|---------|
-| `ProgramArguments` | Command to run (list of strings) | `[ "/usr/bin/env" "backup" ]` |
-| `RunAtLoad` | Start when agent loads | `true` |
-| `KeepAlive` | Restart if process exits | `true` |
-| `StartCalendarInterval` | Cron-like schedule | `[{ Hour = 14; Minute = 0; }]` |
-| `StartInterval` | Run every N seconds | `3600` |
-| `WatchPaths` | Run when paths change | `[ "/some/path" ]` |
-| `EnvironmentVariables` | Env vars for the process | `{ HOME = "/Users/me"; }` |
-| `StandardOutPath` | Stdout log file | `"~/.local/log/out.log"` |
-| `StandardErrorPath` | Stderr log file | `"~/.local/log/err.log"` |
-
-Generated plists land in `~/Library/LaunchAgents/org.nix-community.home.<name>.plist`.
-
-Useful commands:
-```bash
-launchctl list | grep nix-community          # list loaded agents
-launchctl kickstart -k gui/$(id -u)/org.nix-community.home.<name>  # restart
-launchctl print gui/$(id -u)/org.nix-community.home.<name>         # inspect
-```
