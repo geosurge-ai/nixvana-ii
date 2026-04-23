@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.linearmouse.app/0.10.4",
+  "schemes": [
+    {
+      "if": {
+        "device": {
+          "category": "trackpad"
+        }
+      },
+      "pointer": {
+        "acceleration": 0.6641,
+        "disableAcceleration": true
+      }
+    },
+    {
+      "if": {
+        "device": {
+          "category": "mouse"
+        }
+      },
+      "pointer": {
+        "acceleration": 0,
+        "speed": 0.22
+      }
+    }
+  ]
+}

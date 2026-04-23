@@ -1,0 +1,17 @@
+#!/bin/sh
+# macOS system defaults that can't be managed by home-manager.
+# Run once on a fresh Mac, then log out and back in.
+
+# Fast keyboard repeat: KeyRepeat=2 (30ms), InitialKeyRepeat=15 (225ms)
+# macOS default is KeyRepeat=6, InitialKeyRepeat=25
+defaults write NSGlobalDomain KeyRepeat -int 2
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+
+# Disable press-and-hold for accent characters (enables key repeat everywhere)
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# Auto-hide dock
+defaults write com.apple.dock autohide -bool true
+killall Dock
+
+echo "Done. Log out and back in for keyboard repeat changes to take effect."
