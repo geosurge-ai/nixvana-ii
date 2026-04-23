@@ -20,13 +20,20 @@ brew bundle --file=imperative-darwin/Brewfile
 # 4. Unblock Gatekeeper quarantine on all apps
 sudo xattr -dr com.apple.quarantine /Applications/*.app 2>/dev/null
 
-# 5. Set macOS system defaults (keyboard repeat, F-keys, dock, etc.)
+# 5. Set macOS system defaults (keyboard repeat, dock, etc.)
 imperative-darwin/bin/macos-defaults
 # Log out and back in for keyboard repeat to take effect
 
-# 6. Deploy configs (see per-app sections below)
+# 6. F-keys as function keys (must be done via GUI — defaults write alone
+#    does not take effect without re-login on modern macOS):
+#    System Settings > Keyboard > Keyboard Shortcuts... > Function Keys
+#    Toggle "Use F1, F2, etc. keys as standard function keys"
+#    (The macos-defaults script writes the backing default, but the GUI
+#    toggle applies it immediately without a re-login.)
 
-# 7. Grant accessibility permissions (System Settings > Privacy & Security > Accessibility):
+# 7. Deploy configs (see per-app sections below)
+
+# 8. Grant accessibility permissions (System Settings > Privacy & Security > Accessibility):
 #    - Karabiner-Elements (karabiner_grabber + karabiner_observer)
 #    - AeroSpace
 #    - LinearMouse
@@ -42,7 +49,7 @@ Run once on a fresh Mac, then log out and back in.
 What it sets:
 - **Fast keyboard repeat**: KeyRepeat=2 (30ms), InitialKeyRepeat=15 (225ms)
 - **Disable press-and-hold**: enables key repeat everywhere (no accent popup)
-- **F-keys as F-keys**: F1-F12 send actual function key codes; hold Fn for hardware controls (brightness, volume, etc.)
+- **F-keys as F-keys**: F1-F12 send actual function key codes; hold Fn for hardware controls (brightness, volume, etc.). The script writes the backing `defaults` key, but on modern macOS (Ventura+) you must also flip it via GUI for it to apply without re-login: System Settings > Keyboard > Keyboard Shortcuts... > Function Keys.
 - **Auto-hide dock**
 
 ---
