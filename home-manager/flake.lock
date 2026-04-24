@@ -44,15 +44,16 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1777030788,
-        "narHash": "sha256-nnt3Y5Lcb9p0tWM9tbtJtrdhuWzcIzWJYGyqGxcoROs=",
+        "lastModified": 1777032887,
+        "narHash": "sha256-McuXzQHlHTduB+1pQkwt6O/eLXz46r8/y2HvtuRhHLs=",
         "owner": "cognivore",
         "repo": "mcmonad",
-        "rev": "fcc5ada574cc9f004e5ac92d36987f9f3c1e4aa7",
+        "rev": "73d36aa0633c34b5bad5e760995bbc7f96d7d860",
         "type": "github"
       },
       "original": {
         "owner": "cognivore",
+        "ref": "v0.999",
         "repo": "mcmonad",
         "type": "github"
       }

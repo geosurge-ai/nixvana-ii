@@ -7,7 +7,7 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    mcmonad.url = "github:cognivore/mcmonad";
+    mcmonad.url = "github:cognivore/mcmonad/v0.999";
   };
 
   outputs =
