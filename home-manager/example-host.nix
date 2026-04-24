@@ -42,7 +42,6 @@
     configFile = ''
       import MCMonad
       import MCMonad.Config.Keys
-      import qualified XMonad.Layout as XMonad (Resize(..))
       import qualified Data.Map.Strict as Map
       import Data.Bits ((.|.))
 
@@ -67,20 +66,24 @@
           , ((m .|. shiftMask, kR),      restart)
 
           -- Focus / resize (mode-aware: h=left j=down k=up l=right)
+          -- Resize works on both tiled (tree) and floating (scratchpad) windows
           , ((m, kH),                    modeAction "resize"
-                                             (sendMessage (ResizeDir SplitH (-0.05)))
+                                             (resizeOrFloat SplitH (-0.05))
                                              (focusDir DirLeft))
           , ((m, kJ),                    modeAction "resize"
-                                             (sendMessage (ResizeDir SplitV 0.05))
+                                             (resizeOrFloat SplitV 0.05)
                                              (focusDir DirDown))
           , ((m, kK),                    modeAction "resize"
-                                             (sendMessage (ResizeDir SplitV (-0.05)))
+                                             (resizeOrFloat SplitV (-0.05))
                                              (focusDir DirUp))
           , ((m, kL),                    modeAction "resize"
-                                             (sendMessage (ResizeDir SplitH 0.05))
+                                             (resizeOrFloat SplitH 0.05)
                                              (focusDir DirRight))
-          , ((m .|. shiftMask, kJ),      windows swapDown)
-          , ((m .|. shiftMask, kK),      windows swapUp)
+          -- Directional window movement (i3's move left/right/up/down)
+          , ((m .|. shiftMask, kH),      moveDir DirLeft)
+          , ((m .|. shiftMask, kJ),      moveDir DirDown)
+          , ((m .|. shiftMask, kK),      moveDir DirUp)
+          , ((m .|. shiftMask, kL),      moveDir DirRight)
 
           -- Resize mode (Mod+r toggles, Escape exits)
           , ((m, kR),                    modeAction "resize" exitMode
@@ -106,8 +109,8 @@
                       else windows (float w (RationalRect 0.1 0.1 0.8 0.8)))
           , ((m, kW),                    toggleSticky)
 
-          -- Launcher
-          , ((m, kD),                    spawn "open -a 'Spotlight'")
+          -- Launcher (Spotlight)
+          , ((m, kD),                    spawn "osascript -e 'tell application \"System Events\" to keystroke space using command down'")
 
           -- Scratchpads (quake-style)
           , ((0, kF12),                  toggleScratchpad "dropdown"
