@@ -35,12 +35,110 @@
   # services.backup-home.passwordCommand = "pass show restic/backup";
 
   # ── mcmonad tiling window manager ──────────────────────────────────
-  # Uncomment to enable. Edit configFile to customise keybindings.
-  # services.mcmonad = {
-  #   enable = true;
-  #   configFile = ''
-  #     import MCMonad
-  #     main = mcmonad defaultConfig
-  #   '';
-  # };
+  # i3/Sway-style tiling with tree splits, tabbed containers, sticky
+  # windows, scratchpads, and directional focus. Option is the mod key.
+  services.mcmonad = {
+    enable = true;
+    configFile = ''
+      import MCMonad
+      import MCMonad.Config.Keys
+      import qualified XMonad.Layout as XMonad (Resize(..))
+      import qualified Data.Map.Strict as Map
+      import Data.Bits ((.|.))
+
+      main :: IO ()
+      main = mcmonad $ (withSway defaultConfig
+          { terminal        = "/Applications/kitty.app/Contents/MacOS/kitty"
+          , modMask         = optionMask
+          , mcWorkspaces    = map show [1 :: Int .. 20] ++ ["NSP"]
+          , focusFollowsMouse = False
+          , mouseWarping    = False
+          , borderWidth     = 0
+          })
+          { mcKeys = cstKeys }
+
+      cstKeys :: MConfig Layout -> Map.Map (Modifiers, KeyCode) (M ())
+      cstKeys conf = Map.fromList $
+          -- Terminal
+          [ ((m, kReturn),               modeAction "resize" exitMode
+                                             (spawn (terminal conf)))
+          -- Kill / restart
+          , ((m .|. shiftMask, kQ),      kill)
+          , ((m .|. shiftMask, kR),      restart)
+
+          -- Focus / resize (mode-aware: h=left j=down k=up l=right)
+          , ((m, kH),                    modeAction "resize"
+                                             (sendMessage (ResizeDir SplitH (-0.05)))
+                                             (focusDir DirLeft))
+          , ((m, kJ),                    modeAction "resize"
+                                             (sendMessage (ResizeDir SplitV 0.05))
+                                             (focusDir DirDown))
+          , ((m, kK),                    modeAction "resize"
+                                             (sendMessage (ResizeDir SplitV (-0.05)))
+                                             (focusDir DirUp))
+          , ((m, kL),                    modeAction "resize"
+                                             (sendMessage (ResizeDir SplitH 0.05))
+                                             (focusDir DirRight))
+          , ((m .|. shiftMask, kJ),      windows swapDown)
+          , ((m .|. shiftMask, kK),      windows swapUp)
+
+          -- Resize mode (Mod+r toggles, Escape exits)
+          , ((m, kR),                    modeAction "resize" exitMode
+                                             (enterMode "resize"))
+          , ((m, kEscape),               exitMode)
+
+          -- i3/Sway tree operations
+          , ((m, kB),                    sendMessage SetSplitH)
+          , ((m, kV),                    sendMessage SetSplitV)
+          , ((m, kT),                    sendMessage ToggleTabbed)
+          , ((m, kA),                    sendMessage FocusParent)
+
+          -- Fullscreen / floating / sticky
+          , ((m, kF),                    withFocused $ \w -> do
+                  ws <- gets windowset
+                  if Map.member w (floating ws)
+                      then windows (sink w)
+                      else windows (float w (RationalRect 0 0 1 1)))
+          , ((m, kSpace),                withFocused $ \w -> do
+                  ws <- gets windowset
+                  if Map.member w (floating ws)
+                      then windows (sink w)
+                      else windows (float w (RationalRect 0.1 0.1 0.8 0.8)))
+          , ((m, kW),                    toggleSticky)
+
+          -- Launcher
+          , ((m, kD),                    spawn "open -a 'Spotlight'")
+
+          -- Scratchpads (quake-style)
+          , ((0, kF12),                  toggleScratchpad "dropdown"
+                                             (terminal conf))
+          , ((m, kBackslash),            toggleScratchpad "notes"
+                                             (terminal conf ++ " -e nvim ~/Notes"))
+
+          -- Per-output / global workspace cycling
+          , ((m, kComma),                cycleOnOutput Prev)
+          , ((m, kSemicolon),            cycleOnOutput Next)
+          , ((m .|. shiftMask, kComma),  cycleGlobal Prev)
+          , ((m .|. shiftMask, kSemicolon), cycleGlobal Next)
+          ]
+          ++
+          -- Workspaces 1-10
+          [ ((m, key), affinityView ws)
+          | (ws, key) <- zip wsNames numKeys ]
+          ++
+          [ ((m .|. shiftMask, key), affinityShift ws)
+          | (ws, key) <- zip wsNames numKeys ]
+          ++
+          -- Workspaces 11-20 (Ctrl)
+          [ ((m .|. controlMask, key), affinityView ws)
+          | (ws, key) <- zip (drop 10 wsNames) numKeys ]
+          ++
+          [ ((m .|. shiftMask .|. controlMask, key), affinityShift ws)
+          | (ws, key) <- zip (drop 10 wsNames) numKeys ]
+        where
+          m = modMask conf
+          wsNames = mcWorkspaces conf
+          numKeys = [k1, k2, k3, k4, k5, k6, k7, k8, k9, k0]
+    '';
+  };
 }
