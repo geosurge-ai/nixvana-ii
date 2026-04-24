@@ -6,6 +6,8 @@
 
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    mcmonad.url = "github:cognivore/mcmonad";
   };
 
   outputs =
@@ -13,6 +15,7 @@
       self,
       nixpkgs,
       home-manager,
+      mcmonad,
       ...
     }:
 
@@ -56,6 +59,7 @@
           modules = [
             ./darwin.nix
             ./example-host.nix
+            mcmonad.homeManagerModules.default
           ];
         };
       };

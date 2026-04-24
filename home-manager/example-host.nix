@@ -33,4 +33,14 @@
   # Override backup defaults if needed:
   # services.backup-home.repo = "rclone:gdrive:backups/my-mac";
   # services.backup-home.passwordCommand = "pass show restic/backup";
+
+  # ── mcmonad tiling window manager ──────────────────────────────────
+  # Uncomment to enable. Edit configFile to customise keybindings.
+  # services.mcmonad = {
+  #   enable = true;
+  #   configFile = ''
+  #     import MCMonad
+  #     main = mcmonad defaultConfig
+  #   '';
+  # };
 }
