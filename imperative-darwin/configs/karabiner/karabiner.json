@@ -20,6 +20,22 @@
             ]
           },
           {
+            "description": "Disable Right Option + Space (NOOP — prevent stray window-manager layout switch)",
+            "manipulators": [
+              {
+                "from": {
+                  "key_code": "spacebar",
+                  "modifiers": {
+                    "mandatory": ["right_option"],
+                    "optional": ["any"]
+                  }
+                },
+                "to": [{ "key_code": "vk_none" }],
+                "type": "basic"
+              }
+            ]
+          },
+          {
             "description": "Em dash: Right Option/Command + '-' or '=' sends Option+Shift+'-'",
             "manipulators": [
               {
