@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  rageveil,
+  ...
+}:
 
 {
   # ── Replace these with your own values ─────────────────────────────
@@ -7,6 +12,9 @@
   home.stateVersion = "24.11";
 
   home.packages = [
+    # cognivore/rageveil — distributed rage (Rust CLI)
+    rageveil
+
     # Add your host-specific packages here:
     # pkgs.google-cloud-sdk
     # pkgs.rclone

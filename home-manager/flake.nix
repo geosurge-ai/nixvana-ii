@@ -7,7 +7,10 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    mcmonad.url = "github:cognivore/mcmonad/v0.999";
+    mcmonad.url = "github:cognivore/mcmonad/v0.9999999";
+
+    rageveil.url = "github:cognivore/rageveil";
+    rageveil.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -16,6 +19,7 @@
       nixpkgs,
       home-manager,
       mcmonad,
+      rageveil,
       ...
     }:
 
@@ -44,6 +48,7 @@
           extraSpecialArgs = {
             inherit hostname;
             myShell = pkgs.zsh;
+            rageveil = rageveil.packages.${pkgs.system}.default;
           };
           inherit modules;
         };
