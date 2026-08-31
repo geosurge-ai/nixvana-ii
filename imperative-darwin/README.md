@@ -116,8 +116,34 @@ XMonad-style tiling window manager config:
 Deploy: `cp configs/linearmouse/linearmouse.json ~/.config/linearmouse/linearmouse.json`
 
 Per-device pointer settings:
-- Trackpad: custom acceleration
-- Mouse: no acceleration, low speed
+- **Trackpad**: acceleration `0.6641`, just under the macOS default of ~`0.6875`
+- **Mouse**: acceleration `0` (a flat, velocity-independent curve) and speed
+  `0.22`, which LinearMouse folds into the pointer resolution
+
+The mouse scheme is keyed on `category` and nothing else, so **every** mouse
+you own inherits it and they all feel the same. That is the whole point of the
+scheme, and it is worth keeping intact.
+
+Beware that the LinearMouse GUI works against this. Changing pointer settings
+there does not edit the category scheme; it appends a new one pinned to the
+vendor and product ID of whichever mouse happened to be connected. Do that for
+two mice and you have two per-device schemes, and a third mouse now matches
+neither -- so it falls through to the macOS defaults and gets an acceleration
+*curve* while its siblings have a flat one. The mismatch is velocity-dependent,
+which is why it feels unfixable: no value of `speed` makes an accelerated mouse
+track like a non-accelerated one, because they only diverge as you move faster.
+If your mice ever stop feeling alike, look here first and delete the per-device
+schemes.
+
+Note that `disableAcceleration: true` is not a stronger form of
+`acceleration: 0`. Per the schema it means "acceleration **and speed** will not
+take effect", so setting it discards the tuning in the same block.
+
+What this file cannot equalise is the DPI burned into each mouse's sensor. Two
+mice at the same `speed` but different onboard DPI differ by exactly the ratio
+of those DPI values, and games reading raw HID deltas bypass this file
+altogether. Match DPI on the hardware (Logitech G HUB, Razer Synapse, or the
+device's own DPI button) rather than compensating here.
 
 ---
 
