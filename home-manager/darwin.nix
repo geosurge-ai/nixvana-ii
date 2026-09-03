@@ -14,6 +14,7 @@
 
   imports = [
     ./include/cli-darwin.nix
+    ./include/input-darwin.nix
     ./include/shells.nix
     ./include/programming/nix.nix
     ./include/services/gpg.nix
